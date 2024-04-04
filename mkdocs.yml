@@ -4,7 +4,6 @@ repo_url: https://github.com/aws/aws-application-networking-k8s
 edit_uri: edit/main/docs/
 strict: true
 
-
 nav:
   - Home: index.md
   - User Guides:
@@ -36,17 +35,39 @@ nav:
 
 plugins:
   - search
+
 theme:
   name: material
   language: en
   palette:
-    primary: indigo
-    accent: indigo
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+      primary: deep purple
+      accent: purple
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+      primary: black
+      accent: grey
   font:
     text: Roboto
     code: Roboto Mono
-#  features:
-#    - navigation.tabs
+  features:
+      - navigation.tabs
+      - navigation.sections
+      - toc.integrate
+      - navigation.top
+      - search.suggest
+      - search.highlight
+      - content.tabs.link
+      - content.code.annotation
+      - content.code.copy
+
 # Extensions
 markdown_extensions:
   - admonition
@@ -57,12 +78,25 @@ markdown_extensions:
       custom_checkbox: true
   - pymdownx.superfences
   - pymdownx.tabbed
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.snippets
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.mark
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
   - toc:
       permalink: true
 extra_css:
   - https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css
 extra_javascript:
   - https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js
+
+# extra:
+#   version:
+#     provider: mike #mike deploy --push --update-aliases 0.1 latest
+#     site_url: 'https://docs.example.com/'

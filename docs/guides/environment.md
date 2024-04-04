@@ -11,6 +11,7 @@ Type: string
 Default: Inferred from IMDS metadata
 
 A unique name to identify a cluster. This will be used in AWS resource tags to record ownership.
+This variable is required except for EKS cluster. This needs to be specified if IMDS is not available.
 
 ---
 
@@ -20,7 +21,7 @@ Type: string
 
 Default: Inferred from IMDS metadata
 
-When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the VPC of the cluster.
+When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the VPC of the cluster. This needs to be specified if IMDS is not available.
 
 ---
 
@@ -30,7 +31,7 @@ Type: string
 
 Default: Inferred from IMDS metadata
 
-When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the AWS account.
+When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the AWS account. This needs to be specified if IMDS is not available.
 
 ---
 
@@ -38,9 +39,9 @@ When running AWS Gateway API Controller outside the Kubernetes Cluster, this spe
 
 Type: string
 
-Default: "us-west-2"
+Default: Inferred from IMDS metadata.
 
-When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the region of VPC lattice service endpoint
+When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the AWS Region of VPC Lattice Service endpoint. This needs to be specified if IMDS is not available.
 
 ---
 
@@ -72,9 +73,7 @@ Type: string
 
 Default: ""
 
-When set as "true", the controller will run in "single service network" mode that will override all gateways
-to point to default service network, instead of searching for service network with the same name.
-Can be used for small setups and conformance tests.
+When set as "true", the controller will run in "single service network" mode that will override all gateways to point to default service network, instead of searching for service network with the same name. Can be used for small setups and conformance tests.
 
 ---
 
@@ -85,7 +84,7 @@ Type: string
 Default: ""
 
 When set as "true", the controller will start the webhook listener responsible for pod readiness gate injection 
-(see ```pod-readiness-gates.md```). This is disabled by default for ```deploy.yaml``` because the controller will not start 
+(see `pod-readiness-gates.md`). This is disabled by default for `deploy.yaml` because the controller will not start 
 successfully without the TLS certificate for the webhook in place. While this can be fixed by running 
-```scripts/gen-webhook-cert.sh```, it requires manual action. The webhook is enabled by default for the Helm install
+`scripts/gen-webhook-cert.sh`, it requires manual action. The webhook is enabled by default for the Helm install
 as the Helm install will also generate the necessary certificate.
