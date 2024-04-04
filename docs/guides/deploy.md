@@ -2,11 +2,11 @@
 
 This Getting Started guide provides an end-to-end procedure for creating an Amazon EKS cluster (with `eksctl`) and adding install the AWS Gateway API Controller. 
 
-The AWS Gateway API Controller can be used on any Kubernetes cluster on AWS. Check out **ADD PAGE SELF HOSTED** for instructions on how to install and run the controller on a self-hosted Kubernetes cluster.
+The AWS Gateway API Controller can be used on any Kubernetes cluster on AWS. Check out the [Advanced Configurations](https://www.gateway-api-controller.eks.aws.dev/guides/deploy/#using-a-self-managed-kubernetes-cluster) section for instructions on how to install and run the controller on self-hosted Kubernetes clusters.
 
 ## Prerequisites
 
-### Install utilities
+**Install utilities**
 
 The AWS Gateway API Controller can be installed in clusters with either `helm`or `kubectl`. Additionally, it requires cloud provider permissions for VPC Lattice, for AWS IAM Roles for Service Accounts (IRSA) should be used. IRSA permits the Controller
 (within the cluster) to make privileged requests to AWS (as the cloud provider) via a ServiceAccount.
@@ -22,7 +22,7 @@ Install these tools before proceeding:
 with a user that has sufficient privileges to create an EKS cluster. Verify that the CLI can
 authenticate properly by running `aws sts get-caller-identity`.
 
-### Clone the examples repo
+**Clone the examples repo**
 
 Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
 
@@ -33,7 +33,7 @@ Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-ne
 
 ## Create and set up an Amazon EKS Cluster
 
-### Create a cluster
+**Create a cluster**
 
 Amazon Elastic Kubernetes Service (Amazon EKS) is a simple, recommended way of preparing a cluster for running services with AWS Gateway API Controller.
 
@@ -47,7 +47,7 @@ Amazon Elastic Kubernetes Service (Amazon EKS) is a simple, recommended way of p
    eksctl create cluster --name $CLUSTER_NAME --region $AWS_REGION
    ```
 
-### Set up the cluster
+**Set up the cluster**
 
 1. Configure the EKS nodes' security group to receive traffic from the VPC Lattice network. You must set up security groups so that they allow all Pods communicating with VPC Lattice to allow traffic from the VPC Lattice managed prefix lists.  See [Control traffic to resources using security groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) for details. Lattice has both an IPv4 and IPv6 prefix lists available.
 

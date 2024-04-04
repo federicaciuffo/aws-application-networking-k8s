@@ -17,9 +17,7 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 
 ![Single cluster/VPC service-to-service communications](../images/example1.png)
 
-### Steps
-
-#### Setup in-cluster service-to-service communications
+### Setup in-cluster service-to-service communications
 
 1. AWS Gateway API Controller needs a VPC Lattice Service Network to operate.
    When `DEFAULT_SERVICE_NETWORK` environment variable is specified, the controller will automatically configure a service network for you.
@@ -134,7 +132,7 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
     rates-default-034e0056410499722.7d67968.vpc-lattice-svcs.us-west-2.on.aws inventory-default-0c54a5e5a426f92c2.7d67968.vpc-lattice-svcs.us-west-2.on.aws
     ```
 
-#### Verify service-to-service communications
+### Verify service-to-service communications
 
 1. Check connectivity from the `inventory-ver1` service to `parking` and `review` services:
 
@@ -161,8 +159,6 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 This section builds on the previous one. We will be migrating the Kubernetes `inventory` service from a the EKS cluster we previously created to new cluster in a different VPC, located in the same AWS Account.
 
 ![Multiple clusters/VPCs service-to-service communications](../images/example2.png)
-
-### Steps
 
 **Set up `inventory-ver2` service and serviceExport in the second cluster**
 

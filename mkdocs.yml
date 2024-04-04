@@ -7,8 +7,8 @@ strict: true
 nav:
   - Home: index.md
   - User Guides:
-    - Quick Start: guides/deploy.md
-    - Basic Setup: guides/getstarted.md
+    - Controller Installation: guides/deploy.md
+    - Getting Started: guides/getstarted.md
     - Configuration: guides/environment.md
   - Concepts:
     - Design Overview: concepts/overview.md
@@ -38,6 +38,8 @@ plugins:
 
 theme:
   name: material
+  logo: images/controller.png
+  favicon: images/controller.png
   language: en
   palette:
     # Palette toggle for light mode
@@ -67,6 +69,7 @@ theme:
       - content.tabs.link
       - content.code.annotation
       - content.code.copy
+      - navigation.path
 
 # Extensions
 markdown_extensions:
