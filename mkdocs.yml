@@ -40,6 +40,8 @@ theme:
   name: material
   logo: images/controller.png
   favicon: images/controller.png
+  icon:
+    repo: fontawesome/brands/github
   language: en
   palette:
     # Palette toggle for light mode
@@ -64,6 +66,7 @@ theme:
       - navigation.sections
       - toc.integrate
       - navigation.top
+      - navigation.footer
       - search.suggest
       - search.highlight
       - content.tabs.link
@@ -80,7 +83,8 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.superfences
-  - pymdownx.tabbed
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.snippets

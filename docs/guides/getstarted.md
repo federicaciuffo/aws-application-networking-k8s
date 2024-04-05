@@ -1,15 +1,25 @@
 # Getting Started with AWS Gateway API Controller
 
-Once you have [deployed the AWS Gateway API Controller](deploy.md), this guide helps you get started using the controller.
+This guide helps you get started using the controller.
 
 Following this guide, you will:
-- Setting up of service-to-service communications with VPC Lattice on a single cluster.
-- Create another inventory service on a second cluster on a different VPC, and spread traffic to that service across the two clusters and VPCs.
+
+- Set up service-to-service communications with VPC Lattice on a single cluster.
+- Create another service on a second cluster on a different VPC, and spread traffic to that service across the two clusters and VPCs.
 
 Using these examples as a foundation, see the [Concepts](../concepts/overview.md) section for ways to further configure service-to-service communications.
 
-!!! Note
-    You can get the yaml files used on this page by cloning the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
+## Prerequisites
+
+Before proceeding to the next sections, you need to:
+
+- Follow the [AWS Gateway API Controller installation guide on Amazon EKS](deploy.md).
+- Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
+
+    ```bash linenums="1"
+    git clone git@github.com:aws/aws-application-networking-k8s.git
+    cd aws-application-networking-k8s
+    ```
 
 ## Set up single-cluster/VPC service-to-service communications
 
@@ -17,44 +27,51 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 
 ![Single cluster/VPC service-to-service communications](../images/example1.png)
 
-### Setup in-cluster service-to-service communications
+**Setup in-cluster service-to-service communications**
 
 1. AWS Gateway API Controller needs a VPC Lattice Service Network to operate.
    When `DEFAULT_SERVICE_NETWORK` environment variable is specified, the controller will automatically configure a service network for you.
-  For example, if you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
+  
+  1. If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
 
-    ```bash linenums="1"
-    helm upgrade gateway-api-controller \
+    === "Helm"
+        If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
+
+        ```bash linenums="1"
+        helm upgrade gateway-api-controller \
         oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart\
         --version=v1.0.4 \
         --reuse-values \
         --namespace aws-application-networking-system \
         --set=defaultServiceNetwork=my-hotel 
-    ```
+        ```
 
-    Alternatively, you can use AWS CLI to manually create a VPC Lattice service network, with the name `my-hotel`:
+    === "AWS CLI"
 
-    ```bash linenums="1"
-    aws vpc-lattice create-service-network --name my-hotel
-    SERVICE_NETWORK_ID=$(aws vpc-lattice list-service-networks --query "items[?name=="\'my-hotel\'"].id" | jq -r '.[]')
-    CLUSTER_VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME | jq -r .cluster.resourcesVpcConfig.vpcId)
-    aws vpc-lattice create-service-network-vpc-association --service-network-identifier $SERVICE_NETWORK_ID --vpc-identifier $CLUSTER_VPC_ID
-    ```
+        You can use AWS CLI to manually create a VPC Lattice Service Network association to the previously created `my-hotel` Service Network:
 
-    Ensure the service network created above is ready to accept traffic, by checking if the VPC association status is `ACTIVE`:
-   
-    ```bash linenums="1"
-    aws vpc-lattice list-service-network-vpc-associations --vpc-id $CLUSTER_VPC_ID
-    {
-        "items": [
-            {
-                ...
-                "status": "ACTIVE",
-                ...
-            }
-        ]
-    }
-    ```
+        ```bash linenums="1"
+        SERVICE_NETWORK_ID=$(aws vpc-lattice list-service-networks --query "items[?name=="\'my-hotel\'"].id" | jq -r '.[]')
+        CLUSTER_VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME | jq -r .cluster.resourcesVpcConfig.vpcId)
+        aws vpc-lattice create-service-network-vpc-association --service-network-identifier $SERVICE_NETWORK_ID --vpc-identifier $CLUSTER_VPC_ID
+        ```
+
+        Ensure the service network created above is ready to accept traffic from the new VPC, by checking if the VPC association status is `ACTIVE`:
+    
+        ```bash 
+        aws vpc-lattice list-service-network-vpc-associations --vpc-id $CLUSTER_VPC_ID
+        ```
+        ``` json hl_lines="5"
+        {
+            "items": [
+                {
+                    ...
+                    "status": "ACTIVE",
+                    ...
+                }
+            ]
+        }
+        ```
 
 1. Create the Kubernetes Gateway `my-hotel`:
 
@@ -64,9 +81,10 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 
     Verify that `my-hotel` Gateway is created with `PROGRAMMED` status equals to `True`:
 
-    ```bash linenums="1"
+    ```bash 
     kubectl get gateway
-
+    ```
+    ```
     NAME       CLASS                ADDRESS   PROGRAMMED   AGE
     my-hotel   amazon-vpc-lattice               True      7d12h
     ```
@@ -84,9 +102,10 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
    ```
 1. Find out HTTPRoute's DNS name from HTTPRoute status:
 
-    ```bash linenums="1"
+    ```bash
     kubectl get httproute
-
+    ```
+    ```
     NAME        HOSTNAMES   AGE
     inventory               51s
     rates                   6m11s
@@ -94,9 +113,10 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 
 1. Check VPC Lattice generated DNS address for HTTPRoute `inventory` and `rates` (this could take few seconds):
 
-    ```bash hl_lines="7"  linenums="1"
+    ```bash 
     kubectl get httproute inventory -o yaml 
-
+    ```
+    ``` hl_lines="5"
         apiVersion: gateway.networking.k8s.io/v1beta1
         kind: HTTPRoute
         metadata:
@@ -105,9 +125,10 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
         ...
     ```
 
-    ```bash hl_lines="9" linenums="1"
+    ```bash
     kubectl get httproute rates -o yaml
-
+    ```
+    ``` hl_lines="7"
         apiVersion: v1
         items:
         - apiVersion: gateway.networking.k8s.io/v1beta1
@@ -132,7 +153,7 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
     rates-default-034e0056410499722.7d67968.vpc-lattice-svcs.us-west-2.on.aws inventory-default-0c54a5e5a426f92c2.7d67968.vpc-lattice-svcs.us-west-2.on.aws
     ```
 
-### Verify service-to-service communications
+**Verify service-to-service communications**
 
 1. Check connectivity from the `inventory-ver1` service to `parking` and `review` services:
 
@@ -181,38 +202,45 @@ This section builds on the previous one. We will be migrating the Kubernetes `in
     ```
 1. If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
 
-    ```bash linenums="1"
-    helm upgrade gateway-api-controller \
+    === "Helm"
+        If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
+
+        ```bash linenums="1"
+        helm upgrade gateway-api-controller \
         oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart\
         --version=v1.0.4 \
         --reuse-values \
         --namespace aws-application-networking-system \
         --set=defaultServiceNetwork=my-hotel 
-    ```
-    Alternatively, you can use AWS CLI to manually create a VPC Lattice Service Network association to the previously created `my-hotel` Service Network:
+        ```
 
-    ```bash linenums="1"
-    SERVICE_NETWORK_ID=$(aws vpc-lattice list-service-networks --query "items[?name=="\'my-hotel\'"].id" | jq -r '.[]')
-    CLUSTER_VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME | jq -r .cluster.resourcesVpcConfig.vpcId)
-    aws vpc-lattice create-service-network-vpc-association --service-network-identifier $SERVICE_NETWORK_ID --vpc-identifier $CLUSTER_VPC_ID
-    ```
+    === "AWS CLI"
 
-    Ensure the service network created above is ready to accept traffic from the new VPC, by checking if the VPC association status is `ACTIVE`:
-   
-    ```bash 
-    aws vpc-lattice list-service-network-vpc-associations --vpc-id $CLUSTER_VPC_ID
-    ```
-    ``` json hl_lines="5"
-    {
-        "items": [
-            {
-                ...
-                "status": "ACTIVE",
-                ...
-            }
-        ]
-    }
-    ```
+        You can use AWS CLI to manually create a VPC Lattice Service Network association to the previously created `my-hotel` Service Network:
+
+        ```bash linenums="1"
+        SERVICE_NETWORK_ID=$(aws vpc-lattice list-service-networks --query "items[?name=="\'my-hotel\'"].id" | jq -r '.[]')
+        CLUSTER_VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME | jq -r .cluster.resourcesVpcConfig.vpcId)
+        aws vpc-lattice create-service-network-vpc-association --service-network-identifier $SERVICE_NETWORK_ID --vpc-identifier $CLUSTER_VPC_ID
+        ```
+
+        Ensure the service network created above is ready to accept traffic from the new VPC, by checking if the VPC association status is `ACTIVE`:
+    
+        ```bash 
+        aws vpc-lattice list-service-network-vpc-associations --vpc-id $CLUSTER_VPC_ID
+        ```
+        ``` json hl_lines="5"
+        {
+            "items": [
+                {
+                    ...
+                    "status": "ACTIVE",
+                    ...
+                }
+            ]
+        }
+        ```
+
 
 1. Create a Kubernetes inventory-ver2 service in the second cluster:
     ```bash 

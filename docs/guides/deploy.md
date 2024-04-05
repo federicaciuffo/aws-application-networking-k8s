@@ -1,61 +1,52 @@
 # Deploying the AWS Gateway API Controller
 
-This Getting Started guide provides an end-to-end procedure for creating an Amazon EKS cluster (with `eksctl`) and adding install the AWS Gateway API Controller. 
+This Deployment Guide provides an end-to-end procedure to use the AWS Gateway API Controller with [Amazon Elastic Kubernetes Service](https://aws.amazon.com/eks/). 
 
-The AWS Gateway API Controller can be used on any Kubernetes cluster on AWS. Check out the [Advanced Configurations](https://www.gateway-api-controller.eks.aws.dev/guides/deploy/#using-a-self-managed-kubernetes-cluster) section for instructions on how to install and run the controller on self-hosted Kubernetes clusters.
+The AWS Gateway API Controller can be used on any Kubernetes cluster on AWS. Check out the [Advanced Configurations](deploy.md/#advanced-configurations) section below for instructions on how to install and run the controller on self-hosted Kubernetes clusters on AWS.
 
-## Prerequisites
+## Deploy the controller on Amazon EKS
 
-**Install utilities**
+Amazon EKS is a simple, recommended way of preparing a cluster for running services with AWS Gateway API Controller. The AWS Gateway API Controller can be installed with either `helm` or `kubectl`. Additionally, it requires cloud provider permissions for VPC Lattice, for AWS IAM Roles for Service Accounts (IRSA) should be used. IRSA permits the Controller (within the cluster) to make privileged requests to AWS (as the cloud provider) via a ServiceAccount.
 
-The AWS Gateway API Controller can be installed in clusters with either `helm`or `kubectl`. Additionally, it requires cloud provider permissions for VPC Lattice, for AWS IAM Roles for Service Accounts (IRSA) should be used. IRSA permits the Controller
-(within the cluster) to make privileged requests to AWS (as the cloud provider) via a ServiceAccount.
+### Prerequisites
 
 Install these tools before proceeding:
 
-1. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html)
-2. `kubectl` - [the Kubernetes CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
-3. `eksctl` (>= v0.169.0) - [the CLI for AWS EKS](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
-4. `helm` - [the package manager for Kubernetes](https://helm.sh/docs/intro/install/)
+1. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html),
+2. `kubectl` - [the Kubernetes CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/),
+3. `helm` - [the package manager for Kubernetes](https://helm.sh/docs/intro/install/),
+4. `eksctl`- [the CLI for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/setting-up.html).
 
-[Configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
-with a user that has sufficient privileges to create an EKS cluster. Verify that the CLI can
-authenticate properly by running `aws sts get-caller-identity`.
+### Setup
 
-**Clone the examples repo**
-
-Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
-
+Set your AWS Region and Cluster Name as environment variables. See the [Amazon VPC Lattice FAQs](https://aws.amazon.com/vpc/lattice/faqs/) for a list of supported regions.
    ```bash linenums="1"
-   git clone git@github.com:aws/aws-application-networking-k8s.git
-   cd aws-application-networking-k8s
+   export AWS_REGION=<cluster_region>
+   export CLUSTER_NAME=<cluster_name>
    ```
 
-## Create and set up an Amazon EKS Cluster
+**Create a cluster (optional)**
 
-**Create a cluster**
-
-Amazon Elastic Kubernetes Service (Amazon EKS) is a simple, recommended way of preparing a cluster for running services with AWS Gateway API Controller.
-
-1. Set your AWS Region and cluster name as environment variables. See the [Amazon VPC Lattice FAQs](https://aws.amazon.com/vpc/lattice/faqs/) for a list of supported regions. For this example, we use `us-west-2`:
-   ```bash linenums="1"
-   export AWS_REGION=us-west-2
-   export CLUSTER_NAME=gw-api-controller-demo
-   ```
-1. Create a basic cluster with `eksctl`:
+You can easily create a cluster with `eksctl`, the CLI for Amazon EKS:
    ```bash 
    eksctl create cluster --name $CLUSTER_NAME --region $AWS_REGION
    ```
 
-**Set up the cluster**
+**Allow traffic from Amazon VPC Lattice**
 
-1. Configure the EKS nodes' security group to receive traffic from the VPC Lattice network. You must set up security groups so that they allow all Pods communicating with VPC Lattice to allow traffic from the VPC Lattice managed prefix lists.  See [Control traffic to resources using security groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) for details. Lattice has both an IPv4 and IPv6 prefix lists available.
+You must set up security groups so that they allow all Pods communicating with VPC Lattice to allow traffic from the VPC Lattice managed prefix lists.  See [Control traffic to resources using security groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) for details. Lattice has both an IPv4 and IPv6 prefix lists available.
+
+1. Configure the EKS nodes' security group to receive traffic from the VPC Lattice network. 
 
     ```bash 
-    CLUSTER_SG=$(aws eks describe-cluster --name $CLUSTER_NAME --output json| jq -r '.cluster.resourcesVpcConfig.clusterSecurityGroupId')
+    CLUSTER_SG=<your_node_security_group>
     ```
-    !!!Warning
-        The `CLUSTER_SG` export command only works with if you have created the cluster following this walkthrough. If you're using an existing cluster, ensure to export the Nodes' security group into the `CLUSTER_SG`variable.
+    !!!Note
+        If you have created the cluster with `eksctl create cluster --name $CLUSTER_NAME --region $AWS_REGION` command, you can use this command to export the Security Group ID:
+
+        ```bash 
+        CLUSTER_SG=$(aws eks describe-cluster --name $CLUSTER_NAME --output json| jq -r '.cluster.resourcesVpcConfig.clusterSecurityGroupId')
+        ```
 
     ```bash linenums="1"
     PREFIX_LIST_ID=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
@@ -64,13 +55,16 @@ Amazon Elastic Kubernetes Service (Amazon EKS) is a simple, recommended way of p
     aws ec2 authorize-security-group-ingress --group-id $CLUSTER_SG --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID_IPV6}}],IpProtocol=-1"
     ```
 
+**Set up IAM permissions**
+
 1. Create an IAM OIDC provider: See [Creating an IAM OIDC provider for your cluster](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html) for details.
     ```bash 
     eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve --region $AWS_REGION
     ```
 1. Create a policy (`recommended-inline-policy.json`) in IAM with the following content that can invoke the gateway API and copy the policy arn for later use:
 
-    ```json title="recommended-inline-policy.json"
+    ```bash  linenums="1"
+    cat <<EOF > recommended-inline-policy.json
     {
         "Version": "2012-10-17",
         "Statement": [
@@ -119,17 +113,18 @@ Amazon Elastic Kubernetes Service (Amazon EKS) is a simple, recommended way of p
             }
         ]
     }
+    EOF
     ```
 
     ```bash  linenums="1"
     aws iam create-policy \
         --policy-name VPCLatticeControllerIAMPolicy \
-        --policy-document file://examples/recommended-inline-policy.json
+        --policy-document file://recommended-inline-policy.json
     ```
 
 1. Create the `aws-application-networking-system` namespace:
    ```bash  
-   kubectl apply -f examples/deploy-namesystem.yaml
+   kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/deploy-namesystem.yaml
    ```
 1. Retrieve the policy ARN:
    ```bash  
@@ -148,29 +143,34 @@ Amazon Elastic Kubernetes Service (Amazon EKS) is a simple, recommended way of p
         --approve
     ```
 
-## Install the Controller
+### Install the Controller
 
 1. Run **either** `kubectl` or `helm` to deploy the controller. Check [Environment Variables](../guides/environment.md) for detailed explanation of each configuration option.
 
-    ```bash 
-    kubectl apply -f examples/deploy-v1.0.4.yaml
-    ```
-    or
-    ```bash linenums="1"
-    # login to ECR
-    aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
-    # Run helm with either install or upgrade
-    helm install gateway-api-controller \
-        oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart \
-        --version=v1.0.4 \
-        --set=serviceAccount.create=false \
-        --namespace aws-application-networking-system \
-        --set=log.level=info # use "debug" for debug level logs
-    ```
+    === "Helm"
+
+        ```bash  linenums="1"
+        # login to ECR
+        aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
+        # Run helm with either install or upgrade
+        helm install gateway-api-controller \
+            oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart \
+            --version=v1.0.4 \
+            --set=serviceAccount.create=false \
+            --namespace aws-application-networking-system \
+            --set=log.level=info # use "debug" for debug level logs
+        ```
+
+    === "Kubectl"
+
+        ```bash 
+        kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/deploy-v1.0.4.yaml
+        ```
+
 
 1. Create the `amazon-vpc-lattice` GatewayClass:
    ```bash 
-   kubectl apply -f examples/gatewayclass.yaml
+   kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/gatewayclass.yaml
    ```
 
 1. You are all set! Check our [Getting Started Guide](getstarted.md) to try setting up service-to-service communication.
@@ -199,7 +199,7 @@ IPv6 address type is automatically used for your services and pods if
 
 ```bash linenums="1"
 # To create an IPv6 cluster
-eksctl create cluster -f examples/ipv6-cluster.yaml
+eksctl create cluster -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/ipv6-cluster.yaml
 ```
 
 If your cluster is configured to be dual-stack, you can set the IP address type
