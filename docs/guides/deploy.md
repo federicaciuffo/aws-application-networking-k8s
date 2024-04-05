@@ -6,7 +6,7 @@ The AWS Gateway API Controller can be used on any Kubernetes cluster on AWS. Che
 
 ## Deploy the controller on Amazon EKS
 
-Amazon EKS is a simple, recommended way of preparing a cluster for running services with AWS Gateway API Controller. The AWS Gateway API Controller can be installed with either `helm` or `kubectl`. Additionally, it requires cloud provider permissions for VPC Lattice, for AWS IAM Roles for Service Accounts (IRSA) should be used. IRSA permits the Controller (within the cluster) to make privileged requests to AWS (as the cloud provider) via a ServiceAccount.
+Amazon EKS is a simple, recommended way of preparing a cluster for running services with AWS Gateway API Controller. 
 
 ### Prerequisites
 
@@ -56,6 +56,8 @@ You must set up security groups so that they allow all Pods communicating with V
     ```
 
 **Set up IAM permissions**
+
+We use AWS IAM Roles for Service Accounts (IRSA) to assign the Controller necessary permissions via a ServiceAccount.
 
 1. Create an IAM OIDC provider: See [Creating an IAM OIDC provider for your cluster](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html) for details.
     ```bash 
@@ -173,8 +175,6 @@ You must set up security groups so that they allow all Pods communicating with V
    kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/gatewayclass.yaml
    ```
 
-1. You are all set! Check our [Getting Started Guide](getstarted.md) to try setting up service-to-service communication.
-
 ## Advanced configurations
 
 The section below covers advanced configuration techniques for installing and using the AWS Gateway API Controller. This includes things such as running the controller on a self-hosted cluster on AWS or using an IPv6 EKS cluster.
@@ -183,24 +183,20 @@ The section below covers advanced configuration techniques for installing and us
 
 You can install AWS Gateway API Controller to a self-managed Kubernetes cluster in AWS.
 
-The controller utilizes [IMDS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) to get necessary information from instance metadata, such as AWS account ID and VPC ID.
-If your cluster is using IMDSv2, ensure the hop limit is 2 or higher to allow the access from the controller:
+However, the controller utilizes [IMDS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) to get necessary information from instance metadata, such as AWS account ID and VPC ID. So:
 
-```bash linenums="1"
-aws ec2 modify-instance-metadata-options --http-put-response-hop-limit 2 --region <region> --instance-id <instance-id>
-```
+- **If your cluster is using IMDSv2.** ensure the hop limit is 2 or higher to allow the access from the controller:
 
-Alternatively, you can manually provide configuration variables when installing the controller.
+    ```bash
+    aws ec2 modify-instance-metadata-options --http-put-response-hop-limit 2 --region <region> --instance-id <instance-id>
+    ```
+
+- **If your cluster cannot access to IMDS.** ensure to specify the[configuration variables](environment.md) when installing the controller.
 
 ### IPv6 support
 
 IPv6 address type is automatically used for your services and pods if
 [your cluster is configured to use IPv6 addresses](https://docs.aws.amazon.com/eks/latest/userguide/cni-ipv6.html).
-
-```bash linenums="1"
-# To create an IPv6 cluster
-eksctl create cluster -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/ipv6-cluster.yaml
-```
 
 If your cluster is configured to be dual-stack, you can set the IP address type
 of your service using the `ipFamilies` field. For example:

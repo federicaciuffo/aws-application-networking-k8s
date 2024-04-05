@@ -6,9 +6,9 @@ The following environment variables are available, and all of them are optional.
 
 #### `CLUSTER_NAME`
 
-Type: string
+**Type:** *string*
 
-Default: Inferred from IMDS metadata
+**Default:** *Inferred from IMDS metadata*
 
 A unique name to identify a cluster. This will be used in AWS resource tags to record ownership.
 This variable is required except for EKS cluster. This needs to be specified if IMDS is not available.
@@ -17,9 +17,9 @@ This variable is required except for EKS cluster. This needs to be specified if 
 
 #### `CLUSTER_VPC_ID`
 
-Type: string
+**Type:** *string*
 
-Default: Inferred from IMDS metadata
+**Default:** *Inferred from IMDS metadata*
 
 When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the VPC of the cluster. This needs to be specified if IMDS is not available.
 
@@ -27,9 +27,9 @@ When running AWS Gateway API Controller outside the Kubernetes Cluster, this spe
 
 #### `AWS_ACCOUNT_ID`
 
-Type: string
+**Type:** *string*
 
-Default: Inferred from IMDS metadata
+**Default:** *Inferred from IMDS metadata*
 
 When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the AWS account. This needs to be specified if IMDS is not available.
 
@@ -37,9 +37,9 @@ When running AWS Gateway API Controller outside the Kubernetes Cluster, this spe
 
 #### `REGION`
 
-Type: string
+**Type:** *string*
 
-Default: Inferred from IMDS metadata.
+**Default:** *Inferred from IMDS metadata*
 
 When running AWS Gateway API Controller outside the Kubernetes Cluster, this specifies the AWS Region of VPC Lattice Service endpoint. This needs to be specified if IMDS is not available.
 
@@ -47,9 +47,9 @@ When running AWS Gateway API Controller outside the Kubernetes Cluster, this spe
 
 #### `LOG_LEVEL`
 
-Type: string
+**Type:** *string*
 
-Default: "info"
+**Default:** *"info"*
 
 When set as "debug", the AWS Gateway API Controller will emit debug level logs.
 
@@ -58,9 +58,9 @@ When set as "debug", the AWS Gateway API Controller will emit debug level logs.
 
 #### `DEFAULT_SERVICE_NETWORK`
 
-Type: string
+**Type:** *string*
 
-Default: ""
+**Default:** ""
 
 When set as a non-empty value, creates a service network with that name.
 The created service network will be also associated with cluster VPC.
@@ -69,9 +69,9 @@ The created service network will be also associated with cluster VPC.
 
 #### `ENABLE_SERVICE_NETWORK_OVERRIDE`
 
-Type: string
+**Type:** *string*
 
-Default: ""
+**Default:** ""
 
 When set as "true", the controller will run in "single service network" mode that will override all gateways to point to default service network, instead of searching for service network with the same name. Can be used for small setups and conformance tests.
 
@@ -79,9 +79,9 @@ When set as "true", the controller will run in "single service network" mode tha
 
 #### `WEBHOOK_ENABLED`
 
-Type: string
+**Type:** *string*
 
-Default: ""
+**Default:** ""
 
 When set as "true", the controller will start the webhook listener responsible for pod readiness gate injection 
 (see `pod-readiness-gates.md`). This is disabled by default for `deploy.yaml` because the controller will not start 

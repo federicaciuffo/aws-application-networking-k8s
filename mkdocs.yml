@@ -72,6 +72,7 @@ theme:
       - content.tabs.link
       - content.code.annotation
       - content.code.copy
+      - content.code.select
       - navigation.path
 
 # Extensions
@@ -103,7 +104,9 @@ extra_css:
 extra_javascript:
   - https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js
 
-# extra:
+
+extra:
+  generator: false
 #   version:
 #     provider: mike #mike deploy --push --update-aliases 0.1 latest
 #     site_url: 'https://docs.example.com/'
