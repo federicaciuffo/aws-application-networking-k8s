@@ -76,7 +76,7 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 1. Create the Kubernetes Gateway `my-hotel`:
 
     ```bash 
-    kubectl apply -f examples/my-hotel-gateway.yaml
+    kubectl apply -f files/examples/my-hotel-gateway.yaml
     ```
 
     Verify that `my-hotel` Gateway is created with `PROGRAMMED` status equals to `True`:
@@ -91,14 +91,14 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 
 1. Create the Kubernetes HTTPRoute `rates` that can has path matches routing to the `parking` service and `review` service:
    ```bash linenums="1"
-   kubectl apply -f examples/parking.yaml
-   kubectl apply -f examples/review.yaml
-   kubectl apply -f examples/rate-route-path.yaml
+   kubectl apply -f files/examples/parking.yaml
+   kubectl apply -f files/examples/review.yaml
+   kubectl apply -f files/examples/rate-route-path.yaml
    ```
 1. Create another Kubernetes HTTPRoute `inventory`:
    ```bash linenums="1"
-   kubectl apply -f examples/inventory-ver1.yaml
-   kubectl apply -f examples/inventory-route.yaml
+   kubectl apply -f files/examples/inventory-ver1.yaml
+   kubectl apply -f files/examples/inventory-route.yaml
    ```
 1. Find out HTTPRoute's DNS name from HTTPRoute status:
 
@@ -244,11 +244,11 @@ This section builds on the previous one. We will be migrating the Kubernetes `in
 
 1. Create a Kubernetes inventory-ver2 service in the second cluster:
     ```bash 
-    kubectl apply -f examples/inventory-ver2.yaml
+    kubectl apply -f files/examples/inventory-ver2.yaml
     ```
 1. Export this Kubernetes inventory-ver2 from the second cluster, so that it can be referenced by HTTPRoute in the first cluster:
     ```bash 
-    kubectl apply -f examples/inventory-ver2-export.yaml
+    kubectl apply -f files/examples/inventory-ver2-export.yaml
     ```
 
    **Switch back to the first cluster**
@@ -259,11 +259,11 @@ This section builds on the previous one. We will be migrating the Kubernetes `in
     ```
 1. Create Kubernetes ServiceImport `inventory-ver2` in the first cluster:
     ```bash 
-    kubectl apply -f examples/inventory-ver2-import.yaml
+    kubectl apply -f files/examples/inventory-ver2-import.yaml
     ```
 1. Update the HTTPRoute `inventory` rules to route 10% traffic to the first cluster and 90% traffic to the second cluster:
     ```bash 
-    kubectl apply -f examples/inventory-route-bluegreen.yaml
+    kubectl apply -f files/examples/inventory-route-bluegreen.yaml
     ```
 1. Check the service-to-service connectivity from `parking`(in the first cluster) to `inventory-ver1`(in in the first cluster) and `inventory-ver2`(in in the second cluster):
     ```bash 

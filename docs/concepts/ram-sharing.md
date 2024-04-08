@@ -11,7 +11,7 @@ sharer account's service network.
 **Steps**
 
 1. Create a full connectivity setup example (include a gateway, a service and a httproute ) in the account B (sharer
-   account): `kubectl apply -f examples/second-account-gw1-full-setup.yaml`
+   account): `kubectl apply -f files/examples/second-account-gw1-full-setup.yaml`
 
 
 2. Go to accountB's aws "Resource Access Manager" console, create a `VPC Lattice Service Networks` type resource
@@ -25,7 +25,7 @@ sharer account's service network.
    to accountA's context
 
 5. Apply the same "second-account-gw1" account A (sharee account)'s cluster
-   by `kubectl apply -f examples/second-account-gw1-in-primary-account.yaml`
+   by `kubectl apply -f files/examples/second-account-gw1-in-primary-account.yaml`
 
 6. All done, you could verify service network(gateway) sharing by: Attach to any pod in account A's cluster,
    do `curl <vpc lattice service dns for 'second-account-gw1-httproute'>`, it should be able to get correct response "

@@ -33,7 +33,7 @@ spec:
 To register custom domain names to your DNS provider, we recommend using [ExternalDNS](https://github.com/kubernetes-sigs/external-dns).
 AWS Gateway API Controller supports ExternalDNS integration through CRD source - the controller will manage `DNSEndpoint` resource for you.
 
-1. Install `DNSEndpoint` CRD. This is bundled with both Gateway API Controller Helm chart and `examples/deploy-*.yaml` manifest, but also can be installed manually by the following command:
+1. Install `DNSEndpoint` CRD. This is bundled with both Gateway API Controller Helm chart and `files/controller-installation/deploy-*.yaml` manifest, but also can be installed manually by the following command:
    ```sh
    kubectl apply -f config/crds/bases/externaldns.k8s.io_dnsendpoints.yaml
    ```

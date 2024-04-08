@@ -21,21 +21,21 @@ routing rules using the Gateway API.
 
    This YAML file contains the definition for a gateway with an HTTPS listener.
    ```
-   kubectl apply -f examples/my-hotel-gateway-multi-listeners.yaml
+   kubectl apply -f files/examples/my-hotel-gateway-multi-listeners.yaml
    ```
 
 2. **Deploy the gRPC Server**:
 
    Deploy the example gRPC server which will respond to the SayHello gRPC request.
    ```
-   kubectl apply -f examples/greeter-grpc-server.yaml
+   kubectl apply -f files/examples/greeter-grpc-server.yaml
    ```
 
 3. **Set Up the gRPC Route**:
 
    This YAML file contains the `GRPCRoute` resource which directs the gRPC traffic to our example server.
    ```
-   kubectl apply -f examples/greeter-grpc-route.yaml
+   kubectl apply -f files/examples/greeter-grpc-route.yaml
    ```
 
 4. **Verify the Deployment**:

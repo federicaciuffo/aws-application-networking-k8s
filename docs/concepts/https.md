@@ -4,12 +4,12 @@ The Getting Started guide uses HTTP (insecure) communications by default.
 Using the examples here, you can change that to HTTPS (secure) communications.
 If you choose, you can further customize your HTTPS connections by adding custom domain names and certificates, as described below.
 
-**NOTE**: You can get the yaml files used on this page by cloning the [AWS Gateway API Controller for VPC Lattice](https://github.com/aws/aws-application-networking-k8s) site. The files are in the `examples/` directory.
+**NOTE**: You can get the yaml files used on this page by cloning the [AWS Gateway API Controller for VPC Lattice](https://github.com/aws/aws-application-networking-k8s) site. The files are in the `files/examples/` directory.
 
 ### Securing Traffic using HTTPS
 
 By adding https to the amazon-vpc-lattice gateway, you can tell the listener to use HTTPs communications.
-The following modifications to the `examples/my-hotel-gateway.yaml` file add HTTPs communications:
+The following modifications to the `files/examples/my-hotel-gateway.yaml` file add HTTPs communications:
 
 ```
 apiVersion: gateway.networking.k8s.io/v1beta1
@@ -27,7 +27,7 @@ spec:
     port: 443           # Specify communication on port 443
 ...
 ```    
-Next, the following modifications to the `examples/rate-route-path.yaml` file tell the `rates` HTTPRoute to use HTTPS for communications:
+Next, the following modifications to the `files/examples/rate-route-path.yaml` file tell the `rates` HTTPRoute to use HTTPS for communications:
 
 ```
 apiVersion: gateway.networking.k8s.io/v1beta1
@@ -53,7 +53,7 @@ If you want to use a custom domain name along with its own certificate, you can:
 * Follow instructions on [Requesting a public certificate](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html) and get an ACM certificate ARN.
 * Add the ARN to the listener configuration as shown below.
 
-The following shows modifications to `examples/my-hotel-gateway.yaml` to add a custom certificate:
+The following shows modifications to `files/examples/my-hotel-gateway.yaml` to add a custom certificate:
 ```
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway

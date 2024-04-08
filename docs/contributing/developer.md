@@ -47,7 +47,7 @@ eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve --reg
 
 aws iam create-policy \
    --policy-name VPCLatticeControllerIAMPolicy \
-   --policy-document file://examples/recommended-inline-policy.json
+   --policy-document file://files/controller-installation/recommended-inline-policy.json
    
 export VPCLatticeControllerIAMPolicyArn=$(aws iam list-policies --query 'Policies[?PolicyName==`VPCLatticeControllerIAMPolicy`].Arn' --output text)
 
@@ -82,7 +82,7 @@ kubectl apply -f config/crds/bases/application-networking.k8s.aws_targetgrouppol
 kubectl apply -f config/crds/bases/application-networking.k8s.aws_vpcassociationpolicies.yaml
 kubectl apply -f config/crds/bases/application-networking.k8s.aws_accesslogpolicies.yaml
 kubectl apply -f config/crds/bases/application-networking.k8s.aws_iamauthpolicies.yaml
-kubectl apply -f examples/gatewayclass.yaml
+kubectl apply -f files/controller-installation/gatewayclass.yaml
 ```
 
 When e2e tests are terminated during execution, it might break clean-up stage and resources will leak. To delete dangling resources manually use cleanup script:

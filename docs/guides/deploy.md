@@ -62,57 +62,8 @@ The AWS Gateway API Controller needs to have necessary permissions to operate.
 1. Create a policy (`recommended-inline-policy.json`) in IAM with the following content that can invoke the Gateway API and copy the policy arn for later use:
 
     ```bash  linenums="1"
-    cat <<EOF > recommended-inline-policy.json
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": [
-                    "vpc-lattice:*",
-                    "ec2:DescribeVpcs",
-                    "ec2:DescribeSubnets",
-                    "ec2:DescribeTags",
-                    "ec2:DescribeSecurityGroups",
-                    "logs:CreateLogDelivery",
-                    "logs:GetLogDelivery",
-                    "logs:DescribeLogGroups",
-                    "logs:PutResourcePolicy",
-                    "logs:DescribeResourcePolicies",
-                    "logs:UpdateLogDelivery",
-                    "logs:DeleteLogDelivery",
-                    "logs:ListLogDeliveries",
-                    "tag:GetResources",
-                    "firehose:TagDeliveryStream",
-                    "s3:GetBucketPolicy",
-                    "s3:PutBucketPolicy"
-                ],
-                "Resource": "*"
-            },
-            {
-                "Effect" : "Allow",
-                "Action" : "iam:CreateServiceLinkedRole",
-                "Resource" : "arn:aws:iam::*:role/aws-service-role/vpc-lattice.amazonaws.com/AWSServiceRoleForVpcLattice",
-                "Condition" : {
-                    "StringLike" : {
-                        "iam:AWSServiceName" : "vpc-lattice.amazonaws.com"
-                    }
-                }
-            },
-            {
-                "Effect" : "Allow",
-                "Action" : "iam:CreateServiceLinkedRole",
-                "Resource" : "arn:aws:iam::*:role/aws-service-role/delivery.logs.amazonaws.com/AWSServiceRoleForLogDelivery",
-                "Condition" : {
-                    "StringLike" : {
-                        "iam:AWSServiceName" : "delivery.logs.amazonaws.com"
-                    }
-                }
-            }
-        ]
-    }
-    EOF
-
+    curl https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/recommended-inline-policy.json -o recommended-inline-policy.json
+    
     aws iam create-policy \
         --policy-name VPCLatticeControllerIAMPolicy \
         --policy-document file://recommended-inline-policy.json
@@ -122,7 +73,7 @@ The AWS Gateway API Controller needs to have necessary permissions to operate.
 
 1. Create the `aws-application-networking-system` namespace:
 ```bash  
-kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/deploy-namesystem.yaml
+kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/files/controller-installation/deploy-namesystem.yaml
 ```
 
 You can choose from [Pod Identities](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) (recommended) and [IAM Roles For Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) to set up controller permissions.
@@ -242,13 +193,13 @@ You can choose from [Pod Identities](https://docs.aws.amazon.com/eks/latest/user
     === "Kubectl"
 
         ```bash 
-        kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/deploy-v1.0.4.yaml
+        kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/files/controller-installation/deploy-v1.0.4.yaml
         ```
 
 
 1. Create the `amazon-vpc-lattice` GatewayClass:
    ```bash 
-   kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/examples/gatewayclass.yaml
+   kubectl apply -f https://raw.githubusercontent.com/aws/aws-application-networking-k8s/main/files/controller-installation/gatewayclass.yaml
    ```
 
 ## Advanced configurations
