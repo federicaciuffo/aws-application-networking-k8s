@@ -2,18 +2,18 @@
 
 ## Tools
 
-Before you start you need to have following:
+Install these tools before proceeding:
 
-- aws account - https://aws.amazon.com/
-- aws cli - https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-- eksctl - https://github.com/eksctl-io/eksctl/blob/main/README.md#installation
-- kubectl - https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
-- go v1.20.x - https://go.dev/doc/install
-- yq - https://github.com/mikefarah/yq#install
-- jq - https://jqlang.github.io/jq/
-- make 
+1. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html),
+2. `kubectl` - [the Kubernetes CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/),
+3. `helm` - [the package manager for Kubernetes](https://helm.sh/docs/intro/install/),
+4. `eksctl`- [the CLI for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/setting-up.html),
+5. `go v1.20.x` - [language](https://go.dev/doc/install),
+6. `yq` - [CLI to manipulate yaml files](https://github.com/mikefarah/yq#install),
+7. `jq` - [CLI to manipulate json files](https://jqlang.github.io/jq/),
+8. `make`- build automation tool. 
 
-After pulling repo toolchain.sh script will install other dependencies.
+After pulling repo `toolchain.sh` script will install other dependencies.
 
 ```bash
 make toolchain
