@@ -5,17 +5,17 @@ edit_uri: edit/main/docs/
 strict: true
 
 nav:
-  - Home: index.md
+  - Home: 
+    - Introduction: index.md
+    - Concepts: concepts/overview.md
   - User Guides:
     - Controller Installation: guides/deploy.md
     - Getting Started: guides/getstarted.md
     - Configuration: guides/environment.md
-  - Concepts:
-    - Design Overview: concepts/overview.md
-    - TLS: concepts/https.md
-    - Custom Domain Name: concepts/custom-domain-name.md
-    - GRPC: concepts/grpc.md
-    - Cross-Account Sharing: concepts/ram-sharing.md
+    - TLS: guides/https.md
+    - Custom Domain Name: guides/custom-domain-name.md
+    - GRPC: guides/grpc.md
+    - Cross-Account Sharing: guides/ram-sharing.md
   - API Specification: api-reference.md
   - API Reference:
     - AccessLogPolicy: api-types/access-log-policy.md
@@ -80,6 +80,7 @@ markdown_extensions:
   - admonition
   - attr_list
   - codehilite
+  - md_in_html
   - pymdownx.inlinehilite
   - pymdownx.tasklist:
       custom_checkbox: true

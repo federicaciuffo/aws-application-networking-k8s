@@ -178,7 +178,7 @@ make docker-build
 
 ## Deploy Controller inside a Kubernetes Cluster
 
-### Generate deploy.yaml
+Generate `deploy.yaml`
 
 ``` sh
 make build-deploy
