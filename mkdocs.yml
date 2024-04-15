@@ -11,11 +11,11 @@ nav:
   - User Guides:
     - Controller Installation: guides/deploy.md
     - Getting Started: guides/getstarted.md
-    - Configuration: guides/environment.md
     - TLS: guides/https.md
     - Custom Domain Name: guides/custom-domain-name.md
     - GRPC: guides/grpc.md
     - Cross-Account Sharing: guides/ram-sharing.md
+    - Configuration: guides/environment.md
   - API Specification: api-reference.md
   - API Reference:
     - AccessLogPolicy: api-types/access-log-policy.md
