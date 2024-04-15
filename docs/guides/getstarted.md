@@ -13,7 +13,7 @@ Using these examples as a foundation, see the [Concepts](../concepts/overview.md
 
 Before proceeding to the next sections, you need to:
 
-- Follow the [AWS Gateway API Controller installation guide on Amazon EKS](deploy.md).
+- Create a and set up a cluster `gw-api-controller-demo` with the controller following the [AWS Gateway API Controller installation guide on Amazon EKS](deploy.md).
 - Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
 
     ```bash linenums="1"
@@ -21,7 +21,7 @@ Before proceeding to the next sections, you need to:
     cd aws-application-networking-k8s
     ```
 
-## Set up single-cluster/VPC service-to-service communications
+## Single cluster
 
 This example creates a single cluster in a single VPC, then configures two HTTPRoutes (`rates` and `inventory`) and three kubetnetes services (`parking`, `review`, and `inventory-1`). The following figure illustrates this setup:
 
@@ -32,14 +32,15 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
 1. AWS Gateway API Controller needs a VPC Lattice Service Network to operate.
    When `DEFAULT_SERVICE_NETWORK` environment variable is specified, the controller will automatically configure a service network for you.
   
-  1. If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
+  1. Create the Service Network association:
 
     === "Helm"
         If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
 
         ```bash linenums="1"
+        aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
         helm upgrade gateway-api-controller \
-        oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart\
+        oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart \
         --version=v1.0.4 \
         --reuse-values \
         --namespace aws-application-networking-system \
@@ -175,7 +176,7 @@ This example creates a single cluster in a single VPC, then configures two HTTPR
    ```
    Now you could confirm the service-to-service communications within one cluster is working as expected.
 
-## Set up multi-cluster/multi-VPC service-to-service communications
+## Multi-cluster
 
 This section builds on the previous one. We will be migrating the Kubernetes `inventory` service from a the EKS cluster we previously created to new cluster in a different VPC, located in the same AWS Account.
 
@@ -200,14 +201,15 @@ This section builds on the previous one. We will be migrating the Kubernetes `in
     ```bash 
     kubectl config use-context gw-api-controller-demo-2
     ```
-1. If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
+1. Create the Service Network association.
 
     === "Helm"
         If you installed the controller with `helm`, you can update chart configurations by specifying the `defaultServiceNetwork` variable:
 
         ```bash linenums="1"
+        aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
         helm upgrade gateway-api-controller \
-        oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart\
+        oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart \
         --version=v1.0.4 \
         --reuse-values \
         --namespace aws-application-networking-system \
@@ -271,17 +273,81 @@ This section builds on the previous one. We will be migrating the Kubernetes `in
     ```
 
     ```
-
-    Requsting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod <----> in 2nd cluster
-    Requsting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
-    Requsting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
-    Requsting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
-    Requsting to Pod(inventory-ver2-6dc74b45d8-95rsr): Inventory-ver1 handler pod <----> in 1st cluster
-    Requsting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
-    Requsting to Pod(inventory-ver2-6dc74b45d8-95rsr): Inventory-ver2 handler pod
-    Requsting to Pod(inventory-ver2-6dc74b45d8-95rsr): Inventory-ver2 handler pod
-    Requsting to Pod(inventory-ver1-74fc59977-wg8br): Inventory-ver1 handler pod....
+    Requesting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod <----> in 2nd cluster
+    Requesting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
+    Requesting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
+    Requesting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
+    Requesting to Pod(inventory-ver2-6dc74b45d8-95rsr): Inventory-ver1 handler pod <----> in 1st cluster
+    Requesting to Pod(inventory-ver2-6dc74b45d8-rlnlt): Inventory-ver2 handler pod
+    Requesting to Pod(inventory-ver2-6dc74b45d8-95rsr): Inventory-ver2 handler pod
+    Requesting to Pod(inventory-ver2-6dc74b45d8-95rsr): Inventory-ver2 handler pod
+    Requesting to Pod(inventory-ver1-74fc59977-wg8br): Inventory-ver1 handler pod....
     ```
 
     You can see that the traffic is distributed between *inventory-ver1* and *inventory-ver2* as expected.
 
+## Cleanup
+
+**Multicluster**
+
+```bash 
+kubectl config use-context gw-api-controller-demo
+# Delete VPC Lattice Service
+kubectl delete -f files/examples/inventory-route-bluegreen.yaml
+kubectl config use-context gw-api-controller-demo-2
+#Delete Service Export
+kubectl delete -f files/examples/inventory-ver2-export.yaml
+#Delete inventory-ver2 application in cluster2
+kubectl delete -f files/examples/inventory-ver2.yaml
+```
+
+Delete the Service Network Association:
+
+=== "Helm"
+
+    ```bash linenums="1"
+    aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
+    helm uninstall gateway-api-controller --namespace aws-application-networking-system 
+    
+    CLUSTER_NAME=gw-api-controller-demo-2
+    CLUSTER_VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME | jq -r .cluster.resourcesVpcConfig.vpcId)
+    SERVICE_NETWORK_ASSOCIATION_IDENTIFIER=$(aws vpc-lattice list-service-network-vpc-associations --vpc-id $CLUSTER_VPC_ID --query "items[?serviceNetworkName=="\'my-hotel\'"].id" | jq -r '.[]')
+    aws vpc-lattice delete-service-network-vpc-association  --service-network-vpc-association-identifier $SERVICE_NETWORK_ASSOCIATION_IDENTIFIER
+
+    ```
+
+=== "AWS CLI"
+
+    You can use AWS CLI to manually create a VPC Lattice Service Network association to the previously created `my-hotel` Service Network:
+
+    ```bash linenums="1"
+    CLUSTER_NAME=gw-api-controller-demo-2
+    CLUSTER_VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME | jq -r .cluster.resourcesVpcConfig.vpcId)
+    SERVICE_NETWORK_ASSOCIATION_IDENTIFIER=$(aws vpc-lattice list-service-network-vpc-associations --vpc-id $CLUSTER_VPC_ID --query "items[?serviceNetworkName=="\'my-hotel\'"].id" | jq -r '.[]')
+    aws vpc-lattice delete-service-network-vpc-association  --service-network-vpc-association-identifier $SERVICE_NETWORK_ASSOCIATION_IDENTIFIER
+    ```
+
+    Ensure the service network association is now deleted:
+
+    ```bash 
+    aws vpc-lattice list-service-network-vpc-associations --vpc-id $CLUSTER_VPC_ID
+    ```
+
+
+**Single cluster**
+
+```bash
+kubectl config use-context gw-api-controller-demo-1
+kubectl delete -f files/examples/inventory-route.yaml
+kubectl delete -f files/examples/inventory-ver1.yaml
+kubectl delete -f files/examples/rate-route-path.yaml
+kubectl delete -f files/examples/parking.yaml
+kubectl delete -f files/examples/review.yaml
+kubectl delete -f files/examples/my-hotel-gateway.yaml
+```
+
+Delete the Service Network Association:
+
+
+
+   
