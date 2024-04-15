@@ -1,6 +1,10 @@
 # Developer Guide
 
-## Tools
+
+
+## Prerequisites
+
+**Tools**
 
 Install these tools before proceeding:
 
@@ -13,64 +17,38 @@ Install these tools before proceeding:
 7. `jq` - [CLI to manipulate json files](https://jqlang.github.io/jq/),
 8. `make`- build automation tool. 
 
-After pulling repo `toolchain.sh` script will install other dependencies.
+**Cluster creation and setup**
 
-```bash
-make toolchain
-```
+Before proceeding to the next sections, you need to:
 
-## Cluster Setup
+1. Create a and set up a cluster `dev-cluster` with the controller following the [AWS Gateway API Controller installation guide on Amazon EKS](../guides/deploy.md).
+1. Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
+    ```bash
+    git clone git@github.com:aws/aws-application-networking-k8s.git
+    cd aws-application-networking-k8s
+    ```
+1. Install dependencies with `toolchain.sh` script:
+    ```bash
+    make toolchain
+    ```
 
-To run controller in cluster or in development mode you need an EKS cluster. It's a one time setup.
-Running controller in development mode will start controller locally and connects to EKS cluster, 
-this is preferable way for local development.
 
-Once you have eksctl and aws account you can create EKS cluster. It's handy to set env variables, since many places relies on them.
+## Setup
 
-```bash
-export AWS_ACCOUNT= {your account}
-export AWS_REGION= {region with eks and lattice}
-export CLUSTER_NAME=dev-cluster
-```
+Once cluster is ready, we need to apply CRDs for `gateway-api` resources. First install core `gateway-api` CRDs:
 
-Create an EKS cluster and allow Lattice traffic into cluster.
-
-```bash
-eksctl create cluster --name $CLUSTER_NAME --region $AWS_REGION
-
-CLUSTER_SG=$(aws eks describe-cluster --name $CLUSTER_NAME --output json| jq -r '.cluster.resourcesVpcConfig.clusterSecurityGroupId')
-PREFIX_LIST_ID=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
-aws ec2 authorize-security-group-ingress --group-id $CLUSTER_SG --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID}}],IpProtocol=-1"
-PREFIX_LIST_ID_IPV6=$(aws ec2 describe-managed-prefix-lists --query "PrefixLists[?PrefixListName=="\'com.amazonaws.$AWS_REGION.ipv6.vpc-lattice\'"].PrefixListId" | jq -r '.[]')
-aws ec2 authorize-security-group-ingress --group-id $CLUSTER_SG --ip-permissions "PrefixListIds=[{PrefixListId=${PREFIX_LIST_ID_IPV6}}],IpProtocol=-1"
-eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve --region $AWS_REGION
-
-aws iam create-policy \
-   --policy-name VPCLatticeControllerIAMPolicy \
-   --policy-document file://files/controller-installation/recommended-inline-policy.json
-   
-export VPCLatticeControllerIAMPolicyArn=$(aws iam list-policies --query 'Policies[?PolicyName==`VPCLatticeControllerIAMPolicy`].Arn' --output text)
-
-eksctl create iamserviceaccount \
-   --cluster=$CLUSTER_NAME \
-   --namespace=aws-application-networking-system \
-   --name=gateway-api-controller \
-   --attach-policy-arn=$VPCLatticeControllerIAMPolicyArn \
-   --override-existing-serviceaccounts \
-   --region $AWS_REGION \
-   --approve
-```
-
-Once cluster is ready. We need to apply CRDs for gateway-api resources. First install core gateway-api CRDs:
-```bash
-kubectl apply -f config/crds/bases/k8s-gateway-v0.6.1.yaml
-```
-
-The above command will install gateway-api v1beta1 CRDs. If you prefer using the latest v1 CRDs, you can install them instead:
-```bash
-kubectl apply -f config/crds/bases/k8s-gateway-v1.0.0.yaml
-```
-Note that v1 CRDs are not included in `deploy-*.yaml` and helm chart by default.
+=== "v1 CRDs (latest, recommended)"
+    Install the latest `v1` CRDs:
+    ```bash
+    kubectl apply -f config/crds/bases/k8s-gateway-v1.0.0.yaml
+    ```
+    !!! Note
+        Note that v1 CRDs are **not included** in `deploy-*.yaml` and `helm` chart by default. 
+=== "v1beta1 CRDs"
+    Install `gateway-api` `v1beta1` CRDs.
+    ```bash
+    kubectl apply -f config/crds/bases/k8s-gateway-v0.6.1.yaml
+    ```
 
 And install additional CRDs for the controller:
 
@@ -82,7 +60,6 @@ kubectl apply -f config/crds/bases/application-networking.k8s.aws_targetgrouppol
 kubectl apply -f config/crds/bases/application-networking.k8s.aws_vpcassociationpolicies.yaml
 kubectl apply -f config/crds/bases/application-networking.k8s.aws_accesslogpolicies.yaml
 kubectl apply -f config/crds/bases/application-networking.k8s.aws_iamauthpolicies.yaml
-kubectl apply -f files/controller-installation/gatewayclass.yaml
 ```
 
 When e2e tests are terminated during execution, it might break clean-up stage and resources will leak. To delete dangling resources manually use cleanup script:
@@ -93,15 +70,15 @@ make e2e-clean
 
 ## Local Development
 
-A minimal test of changes can be done with ```make presubmit```. This command will also run on PR.
+A minimal test of changes can be done with `make presubmit`. This command will also run on PR.
 
-```
+```sh
 make presubmit
 ```
 
 Start controller in development mode, that will point to cluster (see setup above).
 
-```
+```sh
 // should be region of the cluster
 REGION=us-west-2 make run
 ```
@@ -110,7 +87,7 @@ You can explore a collection of different yaml configurations in the examples fo
 
 To run it against specific lattice service endpoint.
 
-```
+```sh
 LATTICE_ENDPOINT=https://vpc-lattice.us-west-2.amazonaws.com/ make run
 ```
 
@@ -123,7 +100,7 @@ For larger changes it's recommended to run e2e suites on your local cluster.
 E2E tests require a service network named `test-gateway` with cluster VPC associated to run.
 You can either set up service network manually or use DEFAULT_SERVICE_NETWORK option when running controller locally. (e.g. `DEFAULT_SERVICE_NETWORK=test-gateway make run`)
 
-```
+```sh
 REGION=us-west-2 make e2e-test
 ```
 
@@ -203,7 +180,8 @@ make docker-build
 
 ### Generate deploy.yaml
 
-```
+``` sh
 make build-deploy
 ```
+
 Then follow [Deploying the AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s/blob/main/docs/deploy.md) to configure and deploy the docker image
