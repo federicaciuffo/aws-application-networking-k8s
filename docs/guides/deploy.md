@@ -15,7 +15,8 @@ Install these tools before proceeding:
 1. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html),
 2. `kubectl` - [the Kubernetes CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/),
 3. `helm` - [the package manager for Kubernetes](https://helm.sh/docs/intro/install/),
-4. `eksctl`- [the CLI for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/setting-up.html).
+4. `eksctl`- [the CLI for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/setting-up.html),
+5. `jq` - [CLI to manipulate json files](https://jqlang.github.io/jq/).
 
 ### Setup
 
