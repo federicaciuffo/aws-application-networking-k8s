@@ -46,7 +46,7 @@ A central registry of all VPC Lattice services that you own or are shared with y
 **Auth policies**
 Fine-grained authorization policies that can be used to define access to services. You can attach separate auth policies to individual services or to the service network. For example, you can create a policy for how a payment service running on an auto scaling group of EC2 instances should interact with a billing service running in AWS Lambda.
 
-## Use-cases:
+## Use-cases
 
 In the context of Kubernetes, Amazon VPC Lattice helps to simplify the following:
 

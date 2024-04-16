@@ -5,8 +5,9 @@ edit_uri: edit/main/docs/
 strict: true
 
 nav:
-  - Home: 
-    - Introduction: index.md
+  - Home: index.md
+  - Concepts:
+    - Introduction: concepts/concepts.md
     - Concepts: concepts/overview.md
   - User Guides:
     - Controller Installation: guides/deploy.md
@@ -38,6 +39,7 @@ plugins:
 
 theme:
   name: material
+  custom_dir: docs/overrides
   logo: images/controller.png
   favicon: images/controller.png
   icon:
