@@ -1,17 +1,15 @@
 ## Configure HTTPs connections
 
-The Getting Started guide uses HTTP (insecure) communications by default.
-Using the examples here, you can change that to HTTPS (secure) communications.
-If you choose, you can further customize your HTTPS connections by adding custom domain names and certificates, as described below.
+The [Getting Started](./getstarted.md) guide uses `HTTP` communications by default. Using the examples here, you can change that to `HTTPs`. If you choose, you can further customize your `HTTPs` connections by adding custom domain names and certificates, as described below.
 
 **NOTE**: You can get the yaml files used on this page by cloning the [AWS Gateway API Controller for VPC Lattice](https://github.com/aws/aws-application-networking-k8s) site. The files are in the `files/examples/` directory.
 
-### Securing Traffic using HTTPS
+### Securing Traffic using HTTPs
 
 By adding https to the amazon-vpc-lattice gateway, you can tell the listener to use HTTPs communications.
 The following modifications to the `files/examples/my-hotel-gateway.yaml` file add HTTPs communications:
 
-```
+```yaml title="my-hotel-gateway.yaml" hl_lines="11 12 13"
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
@@ -27,9 +25,10 @@ spec:
     port: 443           # Specify communication on port 443
 ...
 ```    
-Next, the following modifications to the `files/examples/rate-route-path.yaml` file tell the `rates` HTTPRoute to use HTTPS for communications:
 
-```
+Next, the following modifications to the `files/examples/rate-route-path.yaml` file tell the `rates` HTTPRoute to use HTTPs for communications:
+
+```yaml title="rate-route-path.yaml" hl_lines="10"
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
 metadata:
@@ -54,7 +53,8 @@ If you want to use a custom domain name along with its own certificate, you can:
 * Add the ARN to the listener configuration as shown below.
 
 The following shows modifications to `files/examples/my-hotel-gateway.yaml` to add a custom certificate:
-```
+
+```yaml title="my-hotel-gateway.yaml" hl_lines="16 17 18 19"
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
@@ -81,7 +81,7 @@ Note that only `Terminate` mode is supported (Passthrough is not supported).
 
 Next, associate the HTTPRoute to the listener configuration you just configured:
 
-```
+```yaml title="rate-route-path.yaml" hl_lines="7"
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
 metadata:
@@ -100,9 +100,9 @@ spec:
 ### Enabling TLS connection on the backend
 
 Currently, TLS Passthrough mode is not supported in the controller, but it allows TLS re-encryption to support backends that only allow TLS connections.
-To handle this use case, you need to configure your service to receive HTTPS traffic instead:
+To handle this use case, you need to configure your service to receive HTTPs traffic instead:
 
-```
+```yaml title="target-group.yaml" hl_lines="10"
 apiVersion: application-networking.k8s.aws/v1alpha1
 kind: TargetGroupPolicy
 metadata:
@@ -116,7 +116,7 @@ spec:
     protocolVersion: HTTP1
 ```
 
-This will create VPC Lattice TargetGroup with HTTPS protocol option, which can receive TLS traffic.
+This will create VPC Lattice TargetGroup with HTTPs protocol option, which can receive TLS traffic.
 Note that certificate validation is not supported.
 
 For more details, please refer to [TargetGroupPolicy API reference](../api-types/target-group-policy.md).
