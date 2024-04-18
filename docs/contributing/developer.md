@@ -22,6 +22,10 @@ Install these tools before proceeding:
 Before proceeding to the next sections, you need to:
 
 1. Create a and set up a cluster `dev-cluster` with the controller following the [AWS Gateway API Controller installation guide on Amazon EKS](../guides/deploy.md).
+
+    !!! Note
+        You can either install the Controller and CRDs following the [steps in the installation guide](../guides/deploy.md/#install-the-controller) or using the steps below if you prefer to create the individual CRDs.
+
 1. Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
     ```bash
     git clone git@github.com:aws/aws-application-networking-k8s.git
@@ -97,18 +101,18 @@ And use "EnvFile" GoLand plugin to read the env variables from the generated `.e
 ## End-to-End Testing
 
 For larger changes it's recommended to run e2e suites on your local cluster.
-E2E tests require a service network named `test-gateway` with cluster VPC associated to run.
-You can either set up service network manually or use DEFAULT_SERVICE_NETWORK option when running controller locally. (e.g. `DEFAULT_SERVICE_NETWORK=test-gateway make run`)
+E2E tests require a Service Network named `test-gateway` with cluster VPC associated to run.
+You can either set up Service Network manually or use DEFAULT_SERVICE_NETWORK option when running controller locally. (e.g. `DEFAULT_SERVICE_NETWORK=test-gateway make run`)
 
 ```sh
 REGION=us-west-2 make e2e-test
 ```
 
-For the `RAM Share` test suite, which runs cross-account e2e tests, you will need a secondary account with a role that
+For the `RAM Share` test suite, which runs cross-account e2e tests, you will need a secondary AWS Account with a role that
 can be assumed by the primary account during test execution.
 You can create an IAM Role, with a Trust Policy allowing the primary account to assume it, via the AWS IAM Console.
 
-```
+```sh
 export SECONDARY_ACCOUNT_TEST_ROLE_ARN=arn:aws:iam::000000000000:role/MyRole
 export FOCUS="RAM Share"
 REGION=us-west-2 make e2e-test
@@ -151,7 +155,7 @@ After all test cases running finished, in the `AfterSuite()` function, it will c
 
 The controller documentation is managed in `docs/` directory, and built with [mkdocs](https://www.mkdocs.org/).
 To build and verify your changes locally:
-```shell
+```sh
 pip install -r requirements.txt
 make docs
 ```
