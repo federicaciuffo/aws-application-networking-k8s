@@ -1,6 +1,6 @@
 # Share Kubernetes Gateway (VPC Lattice Service Network) between different AWS accounts
 
-[AWS Resource Access Manager](https://aws.amazon.com/ram/) (AWS RAM) helps you share your resources across AWS Accounts, within your [AWS Organization](https://aws.amazon.com/organizations/) or Organizational Units (OUs).  RAM supports 2 types of VPC Lattice resource sharing: VPC Lattice Services and  Service Networks.
+[AWS Resource Access Manager](https://aws.amazon.com/ram/) (AWS RAM) helps you share your resources across AWS Accounts, within your [AWS Organization](https://aws.amazon.com/organizations/) or Organizational Units (OUs).  RAM supports 2 types of VPC Lattice resource sharing: VPC Lattice Services and Service Networks.
 
 ### Walkthrough
 
@@ -8,7 +8,7 @@ Let's build an example where **<span style="color:green">Account A (*sharer acco
 
 **Create a VPC Lattice Resources**
 
-In **<span style="color:green">Account A</span>**, create a and set up a cluster with the Controller and an example application installed. You can follow the [Getting Started guide](../guides/getstarted.md)  up to the ["Single Cluster"](../guides/getstarted.md#single-cluster) section.
+In **<span style="color:green">Account A</span>**, set up a cluster with the Controller and an example application installed. You can follow the [Getting Started guide](../guides/getstarted.md)  up to the ["Single Cluster"](../guides/getstarted.md#single-cluster) section.
 
 
 **Share the VPC Lattice Service Network**

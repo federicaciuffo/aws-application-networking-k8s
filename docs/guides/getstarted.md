@@ -5,7 +5,7 @@ This guide helps you get started using the controller.
 Following this guide, you will:
 
 - Set up service-to-service communications with VPC Lattice on a single cluster.
-- Create another service on a second cluster on a different VPC, and spread traffic to that service across the two clusters and VPCs.
+- Create another service on a second cluster in a different VPC, and route traffic to that service across the two clusters and VPCs.
 
 Using these examples as a foundation, see the [Concepts](../concepts/overview.md) section for ways to further configure service-to-service communications.
 
@@ -13,7 +13,7 @@ Using these examples as a foundation, see the [Concepts](../concepts/overview.md
 
 Before proceeding to the next sections, you need to:
 
-- Create a and set up a cluster `gw-api-controller-demo` with the controller following the [AWS Gateway API Controller installation guide on Amazon EKS](deploy.md).
+- Create a cluster `gw-api-controller-demo` with the controller following the [AWS Gateway API Controller installation guide on Amazon EKS](deploy.md).
 - Clone the [AWS Gateway API Controller](https://github.com/aws/aws-application-networking-k8s) repository.
 
     ```bash linenums="1"
